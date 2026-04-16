@@ -57,7 +57,7 @@ uint64_t HashIsResOfRotateRight(const char* key)
     return (uint64_t) rotated;
 }
 
-uint64_t GnuHash (const char* key)
+uint64_t GnuHash(const char* key)
 {
     assert(key != NULL);
 
