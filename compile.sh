@@ -1,7 +1,6 @@
 #!/bin/bash
 
-files="MyList/src/my_list.cpp MyList/src/list_tests.cpp
-       HashFuncs/src/main.cpp"
+files="src/HashTable/main.cpp src/HashTable/hash_table.cpp src/HashTable/hash_funcs.cpp src/List/my_list.cpp"
 
 flags="-D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-loop-optimizations \
     -Wc++14-compat -Wmissing-declarations -Wcast-align -Wcast-qual -Wchar-subscripts \
@@ -17,4 +16,5 @@ flags="-D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-loop-
     -fstack-protector -fstrict-overflow -flto-odr-type-merging -fno-omit-frame-pointer \
     -Wlarger-than=8192 -Wstack-usage=8192 -pie -fPIE -Werror=vla \
     -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,integer-divide-by-zero,leak,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,undefined,unreachable,vla-bound,vptr"
-g++ -I./MyList/include -I./HashFuncs/include $files -o start_hash_table $flags
+
+g++ -I./include/HashTable -I./include/List $files -o hash_table_program $flags
