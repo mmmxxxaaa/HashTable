@@ -1,7 +1,7 @@
-#include "my_list.h"
+#include "hash_funcs.h"
 #include <string.h>
 #include <assert.h>
-
+// ЭТО ИМЕННО РЕСПЕКТ Гистрограммы при помощи gnuplot
 uint64_t HashAlwaysOne(const char* key)
 {
     assert(key != NULL);
@@ -19,6 +19,7 @@ uint64_t HashIsASCIICodeOfFirstLetter(const char* key)
 uint64_t HashIsLengthOfWord(const char* key)
 {
     assert(key != NULL);
+
     uint64_t hash = 0;
     for( ; *key; key++)
         hash++;

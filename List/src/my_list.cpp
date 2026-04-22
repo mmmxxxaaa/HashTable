@@ -1,9 +1,36 @@
 #include "my_list.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <time.h>
+
+ListErrorType ListFindElement(List* list, DataType value, int* position)
+{
+    if (list == NULL)
+        return LIST_NULL_POINTER;
+    if (position == NULL)
+        return LIST_NULL_POINTER;
+
+    *position = -1;
+
+    if (list->size == 0)
+        return LIST_ERROR_NO;
+
+    ssize_t current = GetIndexOfHead(list);
+    while (current != kFictiveElementIndex)
+    {
+        if (strcmp(list->array[current].data, value) == 0)
+        {
+            *position = (int)current;
+            return LIST_ERROR_NO;
+        }
+        current = GetIndexOfNext(list, current);
+    }
+
+    return LIST_ERROR_NO;
+}
 
 int IsElementFree(List* list, ssize_t index)
 {
@@ -47,8 +74,8 @@ ListErrorType ListCtorWithSpecifiedCapacity(List* ptr_list_struct, ssize_t capac
         ptr_list_struct->array[i].prev = -1;
     }
 
-    ptr_list_struct->size           = 0;
-    ptr_list_struct->free           = 1;
+    ptr_list_struct->size = 0;
+    ptr_list_struct->free = (capacity > 1) ? 1 : kFictiveElementIndex; //FIXME поменял, посмотрим, что будет
 
     return LIST_ERROR_NO;
 }

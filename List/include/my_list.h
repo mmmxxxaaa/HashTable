@@ -11,7 +11,7 @@
         (ptr) = NULL;           \
     } while(0)
 
-typedef int DataType;
+typedef const char* DataType;
 
 typedef struct {
     DataType data;
@@ -26,12 +26,14 @@ typedef struct {
     ssize_t size;
 } List;
 
-const DataType    kPoison                      = 525252;
+const DataType    kPoison                      = "LIST_POISON_VALUE";
 const int         kMaxLengthOfFilename         = 256;
 const int         kMaxSystemCommandLength      = 512;
 const ssize_t     kFictiveElementIndex         = 0;
 const int         kCapacityIncreaseCoefficient = 2;
 const char* const kGeneralFolderNameForLogs    = "logs";
+
+ListErrorType ListFindElement(List* list, DataType value, int* position);
 
 int IsElementFree(List* list, ssize_t index);
 
