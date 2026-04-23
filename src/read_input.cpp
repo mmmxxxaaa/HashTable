@@ -76,7 +76,7 @@ WordArray ReadWordsFromFile(const char* filename)
         return result;
     }
 
-    char* second_pass_buffer_pointer = buffer;           // первый проход - считаем количество слов
+    char* second_pass_buffer_pointer = buffer;           // второй проход - записываем указатели
     in_word = 0;
     size_t idx = 0;
     while (*second_pass_buffer_pointer)

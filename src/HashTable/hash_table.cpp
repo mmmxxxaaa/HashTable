@@ -83,13 +83,13 @@ HashTableErrorType HashTablePutElement(HashTable* hash_table, const char* elemen
     return HASH_TABLE_ERROR_NO;
 }
 
-HashTableErrorType HashTableVerify     (HashTable* hash_table)
+HashTableErrorType HashTableVerify(HashTable* hash_table)
 {
     //СИГМА СКИБИДИ
     return HASH_TABLE_ERROR_NO;
 }
 
-HashTableErrorType HashTableDump       (HashTable* hash_table)
+HashTableErrorType HashTableDump(HashTable* hash_table)
 {
     //СИГМА СКИБИДИ
     return HASH_TABLE_ERROR_NO;
@@ -136,5 +136,57 @@ HashTableErrorType HashTableDtor(HashTable* hash_table)
         free(hash_table->list_array);
         hash_table->list_array = NULL;
     }
+    return HASH_TABLE_ERROR_NO;
+}
+
+//FIXME мало передавать указатель на функцию, надо сделать какую-то защиту от перепутывания хэш-функции
+//FIXME идея: в массиве структур хранить указатель на функцию и название файла
+
+//FIXME
+HashTableErrorType HashTableDrawHistogram(HashTable* hash_table, const char* hist_name, const char* hist_title) //FIXME возможно, нужно оставить только одно название из двух
+{
+    assert(hash_table);
+    assert(hist_name);
+    assert(hist_title);
+
+    system("mkdir -p hist");
+
+    char data_filename[256] = {};
+    snprintf(data_filename, sizeof(data_filename), "hist/%s.dat", hist_name);
+
+    FILE* data_file = fopen(data_filename, "w");
+    if (!data_file)
+    {
+        fprintf(stderr, "Cannot open %s for writing\n", data_filename);
+        return HASH_TABLE_ERROR_OPENING_FILE;
+    }
+
+    for (uint64_t i = 0; i < hash_table->hash_table_size; i++)
+    {
+        fprintf(data_file, "%lu %ld\n", (unsigned long)i, hash_table->list_array[i]->size);
+    }
+    fclose(data_file);
+
+    char command[1024] = {};
+    snprintf(command, sizeof(command),
+        "gnuplot -persist -e \""
+        "set terminal png size 1200,600; "
+        "set output 'hist/%s.png'; "
+        "set title '%s'; "
+        "set xlabel 'Bucket index'; "
+        "set ylabel 'Number of words'; "
+        "set style fill solid 0.5; "
+        "set boxwidth 0.8; "
+        "set xrange [-1:%lu]; "
+        "plot '%s' using 1:2 with boxes title ''\"",
+        hist_name, hist_title, (unsigned long)(hash_table->hash_table_size - 1), data_filename);
+
+    int ret = system(command);
+    if (ret != 0)
+    {
+        fprintf(stderr, "Gnuplot command failed\n");
+        return HASH_TABLE_HISTOGRAM_ERROR;
+    }
+
     return HASH_TABLE_ERROR_NO;
 }

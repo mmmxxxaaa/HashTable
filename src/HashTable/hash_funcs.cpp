@@ -70,7 +70,7 @@ uint64_t GnuHash(const char* key)
     return hash;
 }
 
-uint32_t Crc32Hash(const char* key)
+uint32_t Crc32Hash(const char* key) //FIXME тут 32, в остальных 64, что оставить?
 {
     assert(key != NULL);
 
