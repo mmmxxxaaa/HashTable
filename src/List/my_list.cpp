@@ -35,7 +35,7 @@ ListErrorType ListFindElement(List* list, DataType value, int* position)
 int IsElementFree(List* list, ssize_t index)
 {
     assert(list);
-
+    
     if (index < 0 || index >= list->capacity)
         return 0;
 

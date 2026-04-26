@@ -33,13 +33,18 @@ int main()
             fprintf(stderr, "Ошибка при чтении файла %s\n", filepath);
             return 1;
         }
-
         for (int i = 0; i < words_array.words_count; i++)
         {
             HashTablePutElement(&hash_table, words_array.words[i]);
         }
 
+#ifdef ENABLE_HISTOGRAMS 
         HashTableDrawHistogram(&hash_table, hash_funcs[number_of_hash_func].name, hash_funcs[number_of_hash_func].name);
+#else 
+        volatile HashTable *dummy = &hash_table;
+        (void)dummy;
+#endif // ENABLE_HISTOGRAMS
+
         FreeWordArray(&words_array);
         HashTableDtor(&hash_table);
     }
