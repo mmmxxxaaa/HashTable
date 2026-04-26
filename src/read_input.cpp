@@ -16,9 +16,10 @@ static long GetFileSize(FILE* fp)
 
 static int IsSeparator(int c)
 {
+    if (c == '\'' || c == '-')   // апостроф и дефис – часть слова
+        return 0;
     return !isalnum(c);
 }
-
 WordArray ReadWordsFromFile(const char* filename)
 {
     WordArray result = {};

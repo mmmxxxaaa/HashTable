@@ -2,7 +2,7 @@
 
 files="src/main.cpp src/read_input.cpp src/HashTable/hash_table.cpp src/HashTable/hash_funcs.cpp src/List/my_list.cpp"
 
-flags="-D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-loop-optimizations \
+WARN_FLAGS="-std=c++17 -Wall -Wextra -Weffc++ -Waggressive-loop-optimizations \
     -Wc++14-compat -Wmissing-declarations -Wcast-align -Wcast-qual -Wchar-subscripts \
     -Wconditionally-supported -Wconversion -Wctor-dtor-privacy -Wempty-body -Wfloat-equal \
     -Wformat-nonliteral -Wformat-security -Wformat-signedness -Wformat=2 -Winline \
@@ -13,7 +13,6 @@ flags="-D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-loop-
     -Wswitch-enum -Wsync-nand -Wundef -Wunreachable-code -Wunused -Wuseless-cast \
     -Wvariadic-macros -Wno-literal-suffix -Wno-missing-field-initializers -Wno-narrowing \
     -Wno-old-style-cast -Wno-varargs -Wstack-protector -fcheck-new -fsized-deallocation \
-    -fstack-protector -fstrict-overflow -flto-odr-type-merging -fno-omit-frame-pointer \
-    -Wlarger-than=8192 -Wstack-usage=8192 -pie -fPIE -Werror=vla"
+    -fstack-protector -fstrict-overflow -flto-odr-type-merging -pie -fPIE"
 
-g++ -I./include/HashTable -I./include/List -I./include $files -g -O2 -o hash_table_program $flags
+g++ -I./include/HashTable -I./include/List -I./include $files -O2 -DNDEBUG -ggdb3 -fno-omit-frame-pointer $WARN_FLAGS -o hash_table_program_before_opt

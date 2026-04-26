@@ -115,7 +115,7 @@ HashTableErrorType HashTableFindElement(HashTable* hash_table, const char* eleme
     *hash_table_position = element_index;
     *list_position       = pos;
 
-    return HASH_TABLE_ERROR_NO;
+    return (pos != -1) ? HASH_TABLE_ERROR_NO : HASH_TABLE_ELEMENT_NOT_FOUND;
 }
 
 HashTableErrorType HashTableDtor(HashTable* hash_table)
