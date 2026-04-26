@@ -15,4 +15,4 @@ WARN_FLAGS="-std=c++17 -Wall -Wextra -Weffc++ -Waggressive-loop-optimizations \
     -Wno-old-style-cast -Wno-varargs -Wstack-protector -fcheck-new -fsized-deallocation \
     -fstack-protector -fstrict-overflow -flto-odr-type-merging -pie -fPIE"
 
-g++ -I./include/HashTable -I./include/List -I./include $files -O2 -DNDEBUG -ggdb3 -fno-omit-frame-pointer $WARN_FLAGS -o hash_table_program_before_opt
+g++ -I./include/HashTable -I./include/List -I./include $files -O2 -DNDEBUG -ggdb3 -fno-omit-frame-pointer -march=native $WARN_FLAGS -o hash_table_program_after_1

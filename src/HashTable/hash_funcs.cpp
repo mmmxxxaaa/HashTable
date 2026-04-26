@@ -1,7 +1,8 @@
 #include "hash_funcs.h"
 #include <string.h>
 #include <assert.h>
-// ЭТО ИМЕННО РЕСПЕКТ Гистрограммы при помощи gnuplot
+#include <nmmintrin.h>
+
 uint64_t HashAlwaysOne(const char* key)
 {
     assert(key != NULL);
@@ -70,25 +71,36 @@ uint64_t GnuHash(const char* key)
     return hash;
 }
 
-uint32_t Crc32Hash(const char* key) //FIXME тут 32, в остальных 64, что оставить?
+
+uint32_t Crc32Hash(const char* key) 
 {
-    assert(key != NULL);
-
-    uint32_t crc = 0xFFFFFFFF;
-
-    while (*key)
+    uint32_t crc = 0xFFFFFFFF;   // начальное значение
+    while (*key) 
     {
-        crc ^= (uint8_t)(*key);
-
-        for (int i = 0; i < 8; i++)
-        {
-            if (crc & 1)
-                crc = (crc >> 1) ^ 0xEDB88320;
-            else
-                crc >>= 1;
-        }
+        crc = _mm_crc32_u8(crc, (unsigned char)*key);
         key++;
     }
-
-    return ~crc;
+    return crc ^ 0xFFFFFFFF;
 }
+// uint32_t Crc32Hash(const char* key) //FIXME тут 32, в остальных 64, что оставить?
+// {
+//     assert(key != NULL);
+
+//     uint32_t crc = 0xFFFFFFFF;
+
+//     while (*key)
+//     {
+//         crc ^= (uint8_t)(*key);
+
+//         for (int i = 0; i < 8; i++)
+//         {
+//             if (crc & 1)
+//                 crc = (crc >> 1) ^ 0xEDB88320;
+//             else
+//                 crc >>= 1;
+//         }
+//         key++;
+//     }
+
+//     return ~crc;
+// }

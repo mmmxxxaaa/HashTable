@@ -6,22 +6,25 @@
 int main()
 {
     HashFuncInfo hash_funcs[] = {
-        #define X(func) {#func, (HashFunc_t) func }
-        X(HashAlwaysOne),
-        X(HashIsASCIICodeOfFirstLetter),
-        X(HashIsLengthOfWord),
-        X(HashIsSumOfASCIICodesOfAllLetters),
-        X(HashIsResOfRotateLeft),
-        X(HashIsResOfRotateRight),
-        X(GnuHash),
-        X(Crc32Hash)
-        #undef X
+        #define INIT_HASH_FUNC_IN_MASSIVE(func) {#func, (HashFunc_t) func }
+        INIT_HASH_FUNC_IN_MASSIVE(HashAlwaysOne),
+        INIT_HASH_FUNC_IN_MASSIVE(HashIsASCIICodeOfFirstLetter),
+        INIT_HASH_FUNC_IN_MASSIVE(HashIsLengthOfWord),
+        INIT_HASH_FUNC_IN_MASSIVE(HashIsSumOfASCIICodesOfAllLetters),
+        INIT_HASH_FUNC_IN_MASSIVE(HashIsResOfRotateLeft),
+        INIT_HASH_FUNC_IN_MASSIVE(HashIsResOfRotateRight),
+        INIT_HASH_FUNC_IN_MASSIVE(GnuHash),
+        INIT_HASH_FUNC_IN_MASSIVE(Crc32Hash)
+        #undef INIT_HASH_FUNC_IN_MASSIVE
     };
     const size_t hash_funcs_count = sizeof(hash_funcs) / sizeof(hash_funcs[0]);
 
     HashTable hash_table = {};
-
+#ifdef ENABLE_HISTOGRAMS
     for (int number_of_hash_func = 0; number_of_hash_func < hash_funcs_count; number_of_hash_func++)
+#else
+    int number_of_hash_func = hash_funcs_count - 1; //FIXME придумать, как не по номеру, а явно указать, что хочется использовать crc32
+#endif
     {
         HashTableCtor(&hash_table, 4000, 1, hash_funcs[number_of_hash_func].pointer); //FIXME
 
@@ -37,7 +40,7 @@ int main()
         {
             HashTablePutElement(&hash_table, words_array.words[i]);
         }
-
+#ifndef ENABLE_HISTOGRAMS
         WordArray words_to_find = ReadWordsFromFile("data/words_to_find.txt");
 
         if (words_to_find.words == NULL)
@@ -47,20 +50,26 @@ int main()
             HashTableDtor(&hash_table);
             return 1;
         }
-    
-        size_t found_count = 0;
-        for (int i = 0; i < words_to_find.words_count; i++)
-        {   
-            int table_pos = 0, list_pos = 0;
-            if (HashTableFindElement(&hash_table, words_to_find.words[i], &table_pos, &list_pos) == HASH_TABLE_ERROR_NO)
-                found_count++;
-        }
 
-        printf("[%s] Найдено слов: %zu из %d\n",
+        const int repetitions = 5;
+        size_t found_count = 0;
+        for (int rep = 0; rep < repetitions; rep++)
+        {
+            for (size_t i = 0; i < words_to_find.words_count; i++)
+            {   
+                int table_pos = 0, list_pos = 0;
+                if (HashTableFindElement(&hash_table, words_to_find.words[i], &table_pos, &list_pos) == HASH_TABLE_ERROR_NO)
+                    found_count++;
+            }
+        }
+        printf("[%s] Найдено слов: %zu из %zu\n",
                 hash_funcs[number_of_hash_func].name,
                 found_count,
                 words_to_find.words_count);
         FreeWordArray(&words_to_find);
+#endif // ENABLE_HISTOGRAMS
+
+//FIXME считать load-factor
 //FIXME исследовать нужно только одну функцию (сrc32), а цикл нужно оставить под условной компиляцией для построения гистограмм
 #ifdef ENABLE_HISTOGRAMS 
         HashTableDrawHistogram(&hash_table, hash_funcs[number_of_hash_func].name, hash_funcs[number_of_hash_func].name);
