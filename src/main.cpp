@@ -26,7 +26,7 @@ int main()
     int number_of_hash_func = hash_funcs_count - 1; //FIXME придумать, как не по номеру, а явно указать, что хочется использовать crc32
 #endif
     {
-        HashTableCtor(&hash_table, 4000, 1, hash_funcs[number_of_hash_func].pointer); //FIXME
+        HashTableCtor(&hash_table, 4001, 1, hash_funcs[number_of_hash_func].pointer); //FIXME
 
         const char* filepath = "data/book-war-and-peace.txt";
         WordArray words_array = ReadWordsFromFile(filepath);
@@ -51,7 +51,7 @@ int main()
             return 1;
         }
 
-        const int repetitions = 5;
+        const int repetitions = 100;
         size_t found_count = 0;
         for (int rep = 0; rep < repetitions; rep++)
         {
@@ -69,7 +69,7 @@ int main()
         FreeWordArray(&words_to_find);
 #endif // ENABLE_HISTOGRAMS
 
-//FIXME считать load-factor
+//FIXME считать load-factor и дисперсию
 //FIXME исследовать нужно только одну функцию (сrc32), а цикл нужно оставить под условной компиляцией для построения гистограмм
 #ifdef ENABLE_HISTOGRAMS 
         HashTableDrawHistogram(&hash_table, hash_funcs[number_of_hash_func].name, hash_funcs[number_of_hash_func].name);

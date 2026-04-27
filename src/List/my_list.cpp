@@ -6,6 +6,35 @@
 #include <stdlib.h>
 #include <time.h>
 
+static __attribute__((noinline)) int fast_strcmp_aligned32(const char *a, const char *b) { // 2 aligned (сравнить с невыровненной версией)
+    int res;
+    __asm__ volatile (
+        "vmovdqa (%1), %%ymm0\n\t"          // Aligned load
+        "vpcmpeqb (%2), %%ymm0, %%ymm1\n\t" // Сравнение с памятью (тоже должно быть выровнено)
+        "vpmovmskb %%ymm1, %%eax\n\t"
+        "xor $0xffffffff, %%eax\n\t"
+        : "=a"(res)
+        : "r"(a), "r"(b)
+        : "ymm0", "ymm1"
+    );
+    return res;
+}
+
+// static __attribute__((noinline)) int fast_strcmp_32(const char *a, const char *b) { // 2 (для этого пришлось читать каждое слово в "слово" из 32 байт в ReadWordsFromFile)
+//     int res;
+//     __asm__ volatile (
+//         "vmovdqu (%1), %%ymm0\n\t"
+//         "vpcmpeqb (%2), %%ymm0, %%ymm1\n\t" // сравниваем сразу с памятью
+//         "vpmovmskb %%ymm1, %%eax\n\t"       // 1 в бите, если байты РАВНЫ
+//         "xor $0xffffffff, %%eax\n\t"        // Инвертируем: 1 там, где РАЗЛИЧИЯ
+//         : "=a"(res)
+//         : "r"(a), "r"(b)
+//         : "ymm0", "ymm1"
+//     );
+//     // Если res == 0, строки идентичны на протяжении 32 байт
+//     return res; 
+// }
+
 ListErrorType ListFindElement(List* list, DataType value, int* position)
 {
     if (list == NULL)
@@ -21,7 +50,9 @@ ListErrorType ListFindElement(List* list, DataType value, int* position)
     ssize_t current = GetIndexOfHead(list);
     while (current != kFictiveElementIndex)
     {
-        if (strcmp(list->array[current].data, value) == 0)
+        // if (strcmp(list->array[current].data, value) == 0)
+        // if (fast_strcmp_32(list->array[current].data, value) == 0) // 2
+        if (fast_strcmp_aligned32(list->array[current].data, value) == 0) // 2_aligned
         {
             *position = (int)current;
             return LIST_ERROR_NO;
