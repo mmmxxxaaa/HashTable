@@ -7,7 +7,7 @@
 #include <time.h>
 
 static __attribute__((noinline)) int fast_strcmp_aligned32(const char *a, const char *b) { // 2 aligned (сравнить с невыровненной версией)
-    int res;
+    int res = 0;
     __asm__ volatile (
         "vmovdqa (%1), %%ymm0\n\t"          // Aligned load
         "vpcmpeqb (%2), %%ymm0, %%ymm1\n\t" // Сравнение с памятью (тоже должно быть выровнено)
@@ -21,7 +21,7 @@ static __attribute__((noinline)) int fast_strcmp_aligned32(const char *a, const 
 }
 
 // static __attribute__((noinline)) int fast_strcmp_32(const char *a, const char *b) { // 2 (для этого пришлось читать каждое слово в "слово" из 32 байт в ReadWordsFromFile)
-//     int res;
+//     int res = 0;
 //     __asm__ volatile (
 //         "vmovdqu (%1), %%ymm0\n\t"
 //         "vpcmpeqb (%2), %%ymm0, %%ymm1\n\t" // сравниваем сразу с памятью
