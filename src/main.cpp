@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <x86intrin.h>   // для __rdtsc
 #include "read_input.h"
 #include "hash_table.h"
 #include "hash_funcs.h"
@@ -53,6 +54,7 @@ int main()
 
         const int repetitions = 100;
         size_t found_count = 0;
+        unsigned long long start_ticks = __rdtsc();
         for (int rep = 0; rep < repetitions; rep++)
         {
             for (size_t i = 0; i < words_to_find.words_count; i++)
@@ -62,10 +64,13 @@ int main()
                     found_count++;
             }
         }
+        unsigned long long end_ticks = __rdtsc();
+        unsigned long long total_ticks = end_ticks - start_ticks;
         printf("[%s] Найдено слов: %zu из %zu\n",
                 hash_funcs[number_of_hash_func].name,
                 found_count,
                 words_to_find.words_count);
+        printf("Циклов процессора: %llu\n", total_ticks);
         FreeWordArray(&words_to_find);
 #endif // ENABLE_HISTOGRAMS
 
