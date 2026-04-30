@@ -10,7 +10,7 @@ uint64_t HashIsSumOfASCIICodesOfAllLetters  (const char* key);
 uint64_t HashIsResOfRotateLeft              (const char* key);
 uint64_t HashIsResOfRotateRight             (const char* key);
 uint64_t GnuHash                            (const char* key);
-uint32_t Crc32Hash                          (const char* key);
+uint64_t Crc32Hash                          (const char* key);
 
 
 #endif // HASH_FUNCS_H_

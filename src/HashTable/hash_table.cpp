@@ -168,7 +168,7 @@ HashTableErrorType HashTableDrawHistogram(HashTable* hash_table, const char* his
     fclose(data_file);
 
     char command[1024] = {};
-    snprintf(command, sizeof(command),
+    snprintf(command, sizeof(command), //FIXME уметь менять масштаб графика
         "gnuplot -persist -e \""
         "set terminal png size 1200,600; "
         "set output 'hist/%s.png'; "

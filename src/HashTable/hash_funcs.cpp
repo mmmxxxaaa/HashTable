@@ -70,13 +70,12 @@ uint64_t GnuHash(const char* key)
 
     return hash;
 }
-
 #if defined(VERSION_BEFORE_OPTIMIZATION)
-uint32_t Crc32Hash(const char* key) //FIXME тут 32, в остальных 64, что оставить?
+uint64_t Crc32Hash(const char* key) //FIXME
 {
     assert(key != NULL);
 
-    uint32_t crc = 0xFFFFFFFF;
+    uint32_t crc = 0xFFFFFFFF   ;
 
     while (*key)
     {
@@ -92,7 +91,7 @@ uint32_t Crc32Hash(const char* key) //FIXME тут 32, в остальных 64,
         key++;
     }
 
-    return ~crc;
+    return (uint64_t)~crc;
 }
 #else
 uint32_t Crc32Hash(const char* key) //FIXME переделать под 64 бита
