@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include "hash_error_types.h"
 
+const int kHashTableCapacity      = 4001;
+const int kInitListCapacityAtCell = 1;
+
 typedef uint64_t (*HashFunc_t)(const char* key);
 
 typedef struct {
