@@ -18,12 +18,6 @@ typedef struct {
 } HashTable;
 
 typedef struct {
-    char* word;
-    int length;
-    int rep_counter;
-} ElementInHashTable;
-
-typedef struct {
     const char* name;
     HashFunc_t  pointer;
 } HashFuncInfo;

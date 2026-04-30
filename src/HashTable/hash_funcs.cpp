@@ -94,7 +94,7 @@ uint64_t Crc32Hash(const char* key) //FIXME
     return (uint64_t)~crc;
 }
 #else
-uint32_t Crc32Hash(const char* key) //FIXME переделать под 64 бита
+uint64_t Crc32Hash(const char* key) //FIXME переделать под 64 бита
 {
     uint32_t crc = 0xFFFFFFFF;   // начальное значение
     while (*key)
@@ -102,6 +102,6 @@ uint32_t Crc32Hash(const char* key) //FIXME переделать под 64 би�
         crc = _mm_crc32_u8(crc, (unsigned char)*key);
         key++;
     }
-    return crc ^ 0xFFFFFFFF;
+    return (uint64_t)(crc ^ 0xFFFFFFFF);
 }
 #endif // VERSION_BEFORE_OPTIMIZATION

@@ -85,7 +85,25 @@ HashTableErrorType HashTablePutElement(HashTable* hash_table, const char* elemen
 
 HashTableErrorType HashTableVerify(HashTable* hash_table)
 {
-    //СИГМА СКИБИДИ
+    if (hash_table == NULL)
+        return HASH_TABLE_NULL_POINTER;
+
+    if (hash_table->hash_table_size <= 0)
+        return HASH_TABLE_INVALID_CAPACITY;
+
+    if (hash_table->list_array == NULL)
+        return HASH_TABLE_NULL_POINTER;
+
+    for (size_t i = 0; i < hash_table->hash_table_size; ++i)
+    {
+        List* current_list = hash_table->list_array[i];
+
+        VerifyResult ver = VerifyList(current_list);
+        if (ver != VERIFY_SUCCESS)
+        {
+            return HASH_TABLE_LIST_VERIFY_FAILED;
+        }
+    }
     return HASH_TABLE_ERROR_NO;
 }
 
