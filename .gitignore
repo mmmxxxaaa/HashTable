@@ -2,3 +2,4 @@ start_hash_table
 *.out.*
 *.data*
 *.out
+hash_table_program*
