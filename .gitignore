@@ -1,2 +1,4 @@
 start_hash_table
 *.out.*
+*.data*
+*.out
