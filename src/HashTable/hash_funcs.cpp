@@ -71,36 +71,38 @@ uint64_t GnuHash(const char* key)
     return hash;
 }
 
+#if defined(VERSION_BEFORE_OPTIMIZATION)
+uint32_t Crc32Hash(const char* key) //FIXME тут 32, в остальных 64, что оставить?
+{
+    assert(key != NULL);
 
-uint32_t Crc32Hash(const char* key) 
+    uint32_t crc = 0xFFFFFFFF;
+
+    while (*key)
+    {
+        crc ^= (uint8_t)(*key);
+
+        for (int i = 0; i < 8; i++)
+        {
+            if (crc & 1)
+                crc = (crc >> 1) ^ 0xEDB88320;
+            else
+                crc >>= 1;
+        }
+        key++;
+    }
+
+    return ~crc;
+}
+#else
+uint32_t Crc32Hash(const char* key) //FIXME переделать под 64 бита
 {
     uint32_t crc = 0xFFFFFFFF;   // начальное значение
-    while (*key) 
+    while (*key)
     {
         crc = _mm_crc32_u8(crc, (unsigned char)*key);
         key++;
     }
     return crc ^ 0xFFFFFFFF;
 }
-// uint32_t Crc32Hash(const char* key) //FIXME тут 32, в остальных 64, что оставить?
-// {
-//     assert(key != NULL);
-
-//     uint32_t crc = 0xFFFFFFFF;
-
-//     while (*key)
-//     {
-//         crc ^= (uint8_t)(*key);
-
-//         for (int i = 0; i < 8; i++)
-//         {
-//             if (crc & 1)
-//                 crc = (crc >> 1) ^ 0xEDB88320;
-//             else
-//                 crc >>= 1;
-//         }
-//         key++;
-//     }
-
-//     return ~crc;
-// }
+#endif // VERSION_BEFORE_OPTIMIZATION

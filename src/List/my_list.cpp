@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+#if defined(VERSION_AFTER_2_ALIGNED_OPTIMIZATION)
 static __attribute__((noinline)) int fast_strcmp_aligned32(const char *a, const char *b) { // 2 aligned (сравнить с невыровненной версией)
     int res = 0;
     __asm__ volatile (
@@ -19,21 +20,22 @@ static __attribute__((noinline)) int fast_strcmp_aligned32(const char *a, const 
     );
     return res;
 }
-
-// static __attribute__((noinline)) int fast_strcmp_32(const char *a, const char *b) { // 2 (для этого пришлось читать каждое слово в "слово" из 32 байт в ReadWordsFromFile)
-//     int res = 0;
-//     __asm__ volatile (
-//         "vmovdqu (%1), %%ymm0\n\t"
-//         "vpcmpeqb (%2), %%ymm0, %%ymm1\n\t" // сравниваем сразу с памятью
-//         "vpmovmskb %%ymm1, %%eax\n\t"       // 1 в бите, если байты РАВНЫ
-//         "xor $0xffffffff, %%eax\n\t"        // Инвертируем: 1 там, где РАЗЛИЧИЯ
-//         : "=a"(res)
-//         : "r"(a), "r"(b)
-//         : "ymm0", "ymm1"
-//     );
-//     // Если res == 0, строки идентичны на протяжении 32 байт
-//     return res; 
-// }
+#elif defined(VERSION_AFTER_2_OPTIMIZATION)
+static __attribute__((noinline)) int fast_strcmp_32(const char *a, const char *b) { // 2 (для этого пришлось читать каждое слово в "слово" из 32 байт в ReadWordsFromFile)
+    int res = 0;
+    __asm__ volatile (
+        "vmovdqu (%1), %%ymm0\n\t"
+        "vpcmpeqb (%2), %%ymm0, %%ymm1\n\t" // сравниваем сразу с памятью
+        "vpmovmskb %%ymm1, %%eax\n\t"       // 1 в бите, если байты РАВНЫ
+        "xor $0xffffffff, %%eax\n\t"        // Инвертируем: 1 там, где РАЗЛИЧИЯ
+        : "=a"(res)
+        : "r"(a), "r"(b)
+        : "ymm0", "ymm1"
+    );
+    // Если res == 0, строки идентичны на протяжении 32 байт
+    return res;
+}
+#endif // VERSION_AFTER_2_OPTIMIZATION_ALIGNED / VERSION_AFTER_2_OPTIMIZATION
 
 ListErrorType ListFindElement(List* list, DataType value, int* position)
 {
@@ -50,9 +52,13 @@ ListErrorType ListFindElement(List* list, DataType value, int* position)
     ssize_t current = GetIndexOfHead(list);
     while (current != kFictiveElementIndex)
     {
-        // if (strcmp(list->array[current].data, value) == 0)
-        // if (fast_strcmp_32(list->array[current].data, value) == 0) // 2
+#if defined(VERSION_AFTER_2_ALIGNED_OPTIMIZATION)
         if (fast_strcmp_aligned32(list->array[current].data, value) == 0) // 2_aligned
+#elif defined(VERSION_AFTER_2_OPTIMIZATION)
+        if (fast_strcmp_32(list->array[current].data, value) == 0) // 2
+#else
+        if (strcmp(list->array[current].data, value) == 0)
+#endif // VERSION_AFTER_2_ALIGNED_OPTIMIZATION / VERSION_AFTER_2_OPTIMIZATION
         {
             *position = (int)current;
             return LIST_ERROR_NO;
@@ -66,7 +72,7 @@ ListErrorType ListFindElement(List* list, DataType value, int* position)
 int IsElementFree(List* list, ssize_t index)
 {
     assert(list);
-    
+
     if (index < 0 || index >= list->capacity)
         return 0;
 
