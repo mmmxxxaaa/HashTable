@@ -1,6 +1,6 @@
 #!/bin/bash
 
-files="src/main.cpp src/read_input.cpp src/HashTable/hash_table.cpp src/HashTable/hash_funcs.cpp src/List/my_list.cpp"
+files="src/main.cpp src/read_input.cpp src/HashTable/hash_table.cpp src/HashTable/hash_funcs.cpp src/List/my_list.cpp ListFindElement.o"
 
 WARN_FLAGS="-std=c++17 -Wall -Wextra -Weffc++ -Waggressive-loop-optimizations \
     -Wc++14-compat -Wmissing-declarations -Wcast-align -Wcast-qual -Wchar-subscripts \
@@ -15,4 +15,4 @@ WARN_FLAGS="-std=c++17 -Wall -Wextra -Weffc++ -Waggressive-loop-optimizations \
     -Wno-old-style-cast -Wno-varargs -Wstack-protector -fcheck-new -fsized-deallocation \
     -fstack-protector -fstrict-overflow -flto-odr-type-merging -pie -fPIE"
 
-g++ -I./include/HashTable -I./include/List -I./include $files -O2 -DNDEBUG -DVERSION_AFTER_2_ALIGNED_OPTIMIZATION -ggdb3 -fno-omit-frame-pointer -march=native $WARN_FLAGS -o hash_table_program_after_2_aligned
+g++ -I./include/HashTable -I./include/List -I./include $files -O2 -DNDEBUG -DVERSION_AFTER_3_OPTIMIZATION -ggdb3 -fno-omit-frame-pointer -march=native -masm=intel $WARN_FLAGS -o hash_table_program_before

@@ -7,13 +7,13 @@
 #include <time.h>
 
 #if defined(VERSION_AFTER_2_ALIGNED_OPTIMIZATION)
-static __attribute__((noinline)) int fast_strcmp_aligned32(const char *a, const char *b) { // 2 aligned (сравнить с невыровненной версией)
+static __attribute__((noinline)) int fast_strcmp_aligned32(const char *a, const char *b) {
     int res = 0;
     __asm__ volatile (
-        "vmovdqa (%1), %%ymm0\n\t"          // Aligned load
-        "vpcmpeqb (%2), %%ymm0, %%ymm1\n\t" // Сравнение с памятью (тоже должно быть выровнено)
-        "vpmovmskb %%ymm1, %%eax\n\t"
-        "xor $0xffffffff, %%eax\n\t"
+        "vmovdqa ymm0, [%1]\n\t"          // выровненная загрузка a
+        "vpcmpeqb ymm1, ymm0, [%2]\n\t"   // сравнение ymm0 с памятью b (тоже выровнено)
+        "vpmovmskb eax, ymm1\n\t"         // бит = 1 если байты равны
+        "xor eax, 0xffffffff\n\t"         // инвертируем: 1 там, где различие
         : "=a"(res)
         : "r"(a), "r"(b)
         : "ymm0", "ymm1"
@@ -21,22 +21,22 @@ static __attribute__((noinline)) int fast_strcmp_aligned32(const char *a, const 
     return res;
 }
 #elif defined(VERSION_AFTER_2_OPTIMIZATION)
-static __attribute__((noinline)) int fast_strcmp_32(const char *a, const char *b) { // 2 (для этого пришлось читать каждое слово в "слово" из 32 байт в ReadWordsFromFile)
+static __attribute__((noinline)) int fast_strcmp_32(const char *a, const char *b) {
     int res = 0;
     __asm__ volatile (
-        "vmovdqu (%1), %%ymm0\n\t"
-        "vpcmpeqb (%2), %%ymm0, %%ymm1\n\t" // сравниваем сразу с памятью
-        "vpmovmskb %%ymm1, %%eax\n\t"       // 1 в бите, если байты РАВНЫ
-        "xor $0xffffffff, %%eax\n\t"        // Инвертируем: 1 там, где РАЗЛИЧИЯ
+        "vmovdqu ymm0, [%1]\n\t"          // невыровненная загрузка a
+        "vpcmpeqb ymm1, ymm0, [%2]\n\t"   // невыровненное сравнение с b
+        "vpmovmskb eax, ymm1\n\t"
+        "xor eax, 0xffffffff\n\t"
         : "=a"(res)
         : "r"(a), "r"(b)
         : "ymm0", "ymm1"
     );
-    // Если res == 0, строки идентичны на протяжении 32 байт
     return res;
 }
-#endif // VERSION_AFTER_2_OPTIMIZATION_ALIGNED / VERSION_AFTER_2_OPTIMIZATION
+#endif // VERSION_AFTER_2_ALIGNED_OPTIMIZATION / VERSION_AFTER_2_OPTIMIZATION
 
+#ifndef VERSION_AFTER_3_OPTIMIZATION
 ListErrorType ListFindElement(List* list, DataType value, int* position)
 {
     if (list == NULL)
@@ -68,6 +68,7 @@ ListErrorType ListFindElement(List* list, DataType value, int* position)
 
     return LIST_ERROR_NO;
 }
+#endif // NOT VERSION_AFTER_3_OPTIMIZATION
 
 int IsElementFree(List* list, ssize_t index)
 {

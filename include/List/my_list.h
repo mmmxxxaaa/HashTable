@@ -33,7 +33,7 @@ const ssize_t     kFictiveElementIndex         = 0;
 const int         kCapacityIncreaseCoefficient = 2;
 const char* const kGeneralFolderNameForLogs    = "logs";
 
-ListErrorType ListFindElement(List* list, DataType value, int* position);
+extern "C" ListErrorType ListFindElement(List* list, DataType value, int* position);
 
 int IsElementFree(List* list, ssize_t index);
 
