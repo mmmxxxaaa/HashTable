@@ -2,10 +2,10 @@
 
 # --- Конфигурация (всё захардкожено) ---
 PROGRAMS=(
-    "./hash_table_program_before_opt"
-    "./hash_table_program_after_1"
-    "./hash_table_program_after_2"
-    "./hash_table_program_after_2_aligned"
+    # "./hash_table_program_before_opt"
+    # "./hash_table_program_after_1"
+    # "./hash_table_program_after_2"
+    # "./hash_table_program_after_2_aligned"
     "./hash_table_program_after_3"
 )
 
