@@ -39,9 +39,11 @@ ListFindElement:
     vmovdqa ymm0, [rdi]              ; загрузка данных элемента ;!!!!!!!!!!!!разбил одну операцию на две
     vpcmpeqb ymm1, ymm0, ymm2        ; сравнение с pattern
     vpmovmskb eax, ymm1
-    xor     eax, 0xffffffff
-    test    eax, eax
-    jne     .L4
+    inc eax
+    ;;;xor     eax, 0xffffffff ;все байты равны <=> маска 0xFFFFFFFF. При прибавлении 1 к 0xFFFFFFFF получается 0x00000000 (переполнение) и флаг нуля ZF=1
+    ;;;test    eax, eax
+    ;;;jne     .L4
+    jnz     .L4
 
     ; найдено
     mov     dword [rdx], ecx

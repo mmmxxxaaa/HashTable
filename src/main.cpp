@@ -52,7 +52,7 @@ int main()
             return 1;
         }
 
-        const int repetitions = 1000;
+        const int repetitions = 200;
         size_t found_count = 0;
         unsigned long long start_ticks = __rdtsc();
         for (int rep = 0; rep < repetitions; rep++)
