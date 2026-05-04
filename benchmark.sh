@@ -15,13 +15,6 @@ MIN_FREQ="3.40GHz"
 WARMUP=2
 RUNS=7
 
-# Проверка наличия turbostat
-if ! command -v turbostat &> /dev/null; then
-    echo "Устанавливаем linux-tools-common..."
-    sudo apt update && sudo apt install -y linux-tools-common
-    sudo apt install -y "linux-tools-$(uname -r)"
-fi
-
 run_benchmark() {
     local program_path="$1"
     local program_name=$(basename "$program_path")
