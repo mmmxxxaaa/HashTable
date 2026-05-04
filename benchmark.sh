@@ -1,17 +1,16 @@
 #!/bin/bash
 
-# --- Конфигурация (всё захардкожено) ---
 PROGRAMS=(
-    # "./hash_table_program_before_opt"
-    # "./hash_table_program_after_1"
-    # "./hash_table_program_after_2"
-    # "./hash_table_program_after_2_aligned"
+    "./hash_table_program_before_opt"
+    "./hash_table_program_after_1"
+    "./hash_table_program_after_2"
+    "./hash_table_program_after_2_aligned"
     "./hash_table_program_after_3"
 )
 
 CPU_CORE=2
-MAX_FREQ="3.40GHz"
-MIN_FREQ="3.40GHz"          
+MAX_FREQ="2.00GHz"
+MIN_FREQ="2.00GHz"          
 WARMUP=2
 RUNS=7
 
@@ -21,7 +20,6 @@ run_benchmark() {
     local result_md="assets/bench_${program_name}.md"
     local freq_log="logs/freq_${program_name}.csv"
 
-    # Запускаем turbostat в фоне с записью в CSV (разделитель табуляция, можно сменить на запятую)
     sudo turbostat --quiet --interval 1 --cpu $CPU_CORE --show "Bzy_MHz","CoreTmp" --out "$freq_log" &
     TURBO_PID=$!
     sleep 2
@@ -33,7 +31,6 @@ run_benchmark() {
     echo "Результаты сохранены в: $result_md, логи частоты: $freq_log"
 }
 
-# --- Настройка окружения CPU ---
 sudo cpupower frequency-set --max "$MAX_FREQ" --min "$MIN_FREQ" > /dev/null
 for gov in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
     echo "performance" | sudo tee "$gov" > /dev/null
@@ -50,9 +47,7 @@ for prog in "${PROGRAMS[@]}"; do
     fi
 done
 
-# --- Возврат в исходное состояние ---
 sudo cpupower frequency-set --min 400000 --max 4400000 > /dev/null
 sudo cpupower frequency-set -g powersave > /dev/null
 echo 0 | sudo tee /sys/devices/system/cpu/intel_pstate/no_turbo > /dev/null
-
 echo "Все бенчмарки завершены. CSV-логи лежат в папке logs/."
