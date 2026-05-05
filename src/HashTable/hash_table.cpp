@@ -231,3 +231,26 @@ HashTableErrorType HashTableDrawHistogram(HashTable* hash_table, const char* his
 
     return HASH_TABLE_ERROR_NO;
 }
+
+double ComputeDispersion(HashTable* hash_table)
+{
+    assert(hash_table != NULL);
+
+    if (hash_table->hash_table_size == 0) 
+        return 0.0;
+
+    uint64_t n = hash_table->hash_table_size;
+    double sum = 0.0;
+    double sum_sq = 0.0;
+
+    for (uint64_t i = 0; i < n; i++)
+    {
+        ssize_t size = hash_table->list_array[i]->size;
+        sum += size;
+        sum_sq += (double)size * size;
+    }
+    double mean = sum / n;
+    double dispersion = (sum_sq / n) - mean * mean;     // σ² = (1/n) * Σ (x_i - μ)² => σ² = ( Σ x_i² / n ) - ( Σ x_i / n )²
+
+    return dispersion;
+}

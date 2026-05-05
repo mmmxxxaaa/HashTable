@@ -14,6 +14,61 @@
 ### Флаги компиляции
 -O2 -DNDEBUG -ggdb3 -fno-omit-frame-pointer -march=native -masm=intel
 
+## Ход Работы
+
+### Сначала выберем подходящую хэш-функцию
+Для этого построим гистограммы распределения слов из "Войны и мира" по хэш таблице для каждой хэш функции и посчитаем дисперсию.    
+
+<div style="font-size: 1.2em; overflow-x: auto;">
+  <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr>
+        <th style="text-align: center;">Хэш-функция</th>
+        <th style="text-align: center;">Гистограмма</th>
+        <th style="text-align: center;">Генеральная дисперсия</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="text-align: center;">HashAlwaysOne</td>
+          <td style="text-align: center;"><img src="hist/HashAlwaysOne.png" alt="HashAlwaysOne" style="max-width:100%; height:auto;"></td>
+          <td style="text-align: center;">124807.04</td>
+      </tr>
+      <tr><td style="text-align: center;">HashIsASCIICodeOfFirstLetter</td>
+          <td style="text-align: center;"><img src="hist/HashIsASCIICodeOfFirstLetter.png" alt="HashIsASCIICodeOfFirstLetter" style="max-width:100%; height:auto;"></td>
+          <td style="text-align: center;">5160.89</td>
+      </tr>
+      <tr><td style="text-align: center;">HashIsLengthOfWord</td>
+          <td style="text-align: center;"><img src="hist/HashIsLengthOfWord.png" alt="HashIsLengthOfWord" style="max-width:100%; height:auto;"></td>
+          <td style="text-align: center;">12914.98</td>
+      </tr>
+      <tr><td style="text-align: center;">HashIsSumOfASCIICodesOfAllLetters</td>
+          <td style="text-align: center;"><img src="hist/HashIsSumOfASCIICodesOfAllLetters.png" alt="HashIsSumOfASCIICodesOfAllLetters" style="max-width:100%; height:auto;"></td>
+          <td style="text-align: center;">144.94</td>
+      </tr>
+      <tr><td style="text-align: center;">HashIsResOfRotateLeft</td>
+          <td style="text-align: center;"><img src="hist/HashIsResOfRotateLeft.png" alt="HashIsResOfRotateLeft" style="max-width:100%; height:auto;"></td>
+          <td style="text-align: center;">5160.89</td>
+      </tr>
+      <tr><td style="text-align: center;">HashIsResOfRotateRight</td>
+          <td style="text-align: center;"><img src="hist/HashIsResOfRotateRight.png" alt="HashIsResOfRotateRight" style="max-width:100%; height:auto;"></td>
+          <td style="text-align: center;">5160.89</td>
+      </tr>
+      <tr><td style="text-align: center;">GnuHash</td>
+          <td style="text-align: center;"><img src="hist/GnuHash.png" alt="GnuHash" style="max-width:100%; height:auto;"></td>
+          <td style="text-align: center;">5.57</td>
+      </tr>
+      <tr><td style="text-align: center;"><strong>Crc32Hash</strong></td>
+          <td style="text-align: center;"><img src="hist/Crc32Hash.png" alt="Crc32Hash" style="max-width:100%; height:auto;"></td>
+          <td style="text-align: center;"><strong>5.43</strong></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+Видим, что crc32 дает наиболее равномерное распределение слов по хэш-таблице, поэтому возьмём для дальнейшей работы именно её.
+
+Теперь наша задача тремя видами низкоуровневых оптимизаций (интринсики, ассемблерная вставка, чистый ассемблер) улучшить производительность программы.
+
 ## 0. Версия программы до оптимизаций.
 
 #### Benchmark 0: 
@@ -143,7 +198,7 @@ static __attribute__((noinline)) int fast_strcmp_aligned32(const char *a, const 
 <img src="monitoring_graphics/after_2_aligned.png" width="600">
 
 Видим, что особой разницы нет. На современных процессорах выровненная и невыровненная загрузка не отличаются по производительности.
-Функция сравнения уже работает быстро, а остается она узким горлышком только по той причине, что сравнений много. То есть проблема заключается не в медленной работе функции, а в количестве вызовов этой функции.Можно оптимизировать это изменением структуры данных, например, хранить в хэш таблице не просто указатель на строку, а ещё и посчитанный хэш (Номер ячейки - остаток от деления хэша на размер хэш таблицы, а тут именно 64-битный хэш). При сравнении строк мы сначала будем сравнивать хэш, и только в случае равенства хэшей будем сранивать строки. Но эта оптимизация использует изменение структуры данных и сильно влияет на логику проекта, поэтому оставим её на будущее и продолжим использовать низкоуровневые оптимизации для улучшения производительности текующей версии программы, не производя изменений в логике.
+Функция сравнения уже работает быстро, а остается она узким горлышком только по той причине, что сравнений много. То есть проблема заключается не в медленной работе функции, а в количестве вызовов этой функции.Можно оптимизировать это изменением структуры данных, например, хранить в хэш таблице не просто указатель на строку, а ещё и посчитанный хэш (Номер ячейки - остаток от деления хэша на размер хэш таблицы, а тут именно 64-битный хэш). При сравнении строк мы сначала будем сравнивать хэш, и только в случае равенства хэшей будем сранивать строки. Но эта оптимизация использует изменение структуры данных и сильно влияет на логику проекта, поэтому оставим её на будущее и продолжим использовать низкоуровневые оптимизации для улучшения производительности текущей версии программы, не производя изменений в логике.
 Поэтому перейдем к оптимизации функции, находящейся на втором месте в perf.
 
 #### perf анализ
@@ -213,8 +268,8 @@ ListFindElement:
     mov     eax, 5
     ret
 ```
-- Вставил код фукнции fast_strcmp_aligned32 прямо внутрь оптимизируемой функции.
-- Вынес из цикла загрузку из памяти искомого слова (получился инвариантый вынос кода [LICM])
+- Вставил код функции fast_strcmp_aligned32 прямо внутрь оптимизируемой функции.
+- Вынес из цикла загрузку из памяти искомого слова (получился инвариантный вынос кода [LICM])
 - Заметил, что проверку eax на значение 0xffffffff можно сделать не через xor + test, а через inc eax, так как если eax = 0xffffffff, то при увеличении его на 1 произойдет переполнение, и флаг нуля ZF станет равным единице. Во всех остальных случаях при других значениях eax такая операция не выставит ZF в единицу.
 
 #### Benchmark 3:  
@@ -237,4 +292,4 @@ ListFindElement:
 В ходе этой лабораторной работы я научился использовать 3 вида низкоуровневой оптимизации: интринсиком, ассемблерной вставкой и чистым ассемблером. 
 
 ### Интересные факты
-В этой работе, как и в прошлой, мне нужно было фиксировать частоту ядра во избежание сильного нагрева и появления тротлинга. Прошлая работа была написана на Windows, и там даже при жестком фиксировании частоты наблюдались внезапные проседания частоты с 2.0 ГГц до 1.5 ГГц, а в этой работе, которая написана на Linux, фиксирование частоты работает гораздо лучше, присутствуют лишь небольше колебания с амплитудой < 5 МГц.
+В этой работе, как и в прошлой, мне нужно было фиксировать частоту ядра во избежание сильного нагрева и появления тротлинга. Прошлая работа была написана на Windows, и там даже при жестком фиксировании частоты наблюдались внезапные проседания частоты с 2.0 ГГц до 1.5 ГГц, а в этой работе, которая написана на Linux, фиксирование частоты работает гораздо лучше, присутствуют лишь небольшие колебания с амплитудой < 5 МГц.

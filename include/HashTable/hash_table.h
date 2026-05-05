@@ -30,5 +30,6 @@ HashTableErrorType HashTableDump       (HashTable* hash_table);
 HashTableErrorType HashTableFindElement(HashTable* hash_table, const char* element, int* hash_table_position, int* list_position);
 
 HashTableErrorType HashTableDrawHistogram(HashTable* hash_table, const char*  hist_name, const char* hist_title);
+double ComputeDispersion(HashTable* hash_table);
 
 #endif // HASH_TABLE_H_

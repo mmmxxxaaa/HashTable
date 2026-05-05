@@ -21,6 +21,22 @@ int main()
     const size_t hash_funcs_count = sizeof(hash_funcs) / sizeof(hash_funcs[0]);
 
     HashTable hash_table = {};
+
+#ifdef ENABLE_HISTOGRAMS
+    system("mkdir -p assets");
+
+    FILE* md_file = fopen("assets/dispersion.md", "w");
+    if (!md_file) 
+    {
+        fprintf(stderr, "Ошибка: не удалось создать assets/dispersion.md\n");
+        return 1;
+    }
+
+    fprintf(md_file, "# Дисперсия распределения слов по ячейкам\n\n");
+    fprintf(md_file, "| Хэш-функция | Дисперсия |\n");
+    fprintf(md_file, "|------------|----------------------|\n");
+#endif
+
 #ifdef ENABLE_HISTOGRAMS
     for (int number_of_hash_func = 0; number_of_hash_func < hash_funcs_count; number_of_hash_func++)
 #else
@@ -77,6 +93,8 @@ int main()
 //FIXME считать load-factor и дисперсию
 #ifdef ENABLE_HISTOGRAMS
         HashTableDrawHistogram(&hash_table, hash_funcs[number_of_hash_func].name, hash_funcs[number_of_hash_func].name);
+        double disp = ComputeDispersion(&hash_table);
+        fprintf(md_file, "| %s | %.2f |\n", hash_funcs[number_of_hash_func].name, disp);
 #else
         volatile HashTable *dummy = &hash_table;
         (void)dummy;
