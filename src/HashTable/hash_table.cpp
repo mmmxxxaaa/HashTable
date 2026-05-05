@@ -1,5 +1,6 @@
 #include "hash_table.h"
 #include <stdlib.h>
+#include <stdbool.h>
 #include <assert.h>
 #include "hash_error_types.h"
 
@@ -185,6 +186,28 @@ HashTableErrorType HashTableDrawHistogram(HashTable* hash_table, const char* his
     }
     fclose(data_file);
 
+    uint64_t last_noempty = 0;
+    bool has_any = false;       // Флаг, что есть хотя бы 1 непустая ячейка
+    for (uint64_t i = 0; i < hash_table->hash_table_size; i++)
+    {
+        if (hash_table->list_array[i]->size > 0)
+        {
+            last_noempty = i;
+            has_any = true;
+        }
+    }
+    uint64_t xmax = 0;
+    if (has_any)
+    {
+        xmax = last_noempty + 50;
+        if (xmax >= hash_table->hash_table_size)
+            xmax = hash_table->hash_table_size - 1;
+    }
+    else
+    {
+        xmax = hash_table->hash_table_size - 1;
+    }
+
     char command[1024] = {};
     snprintf(command, sizeof(command), //FIXME уметь менять масштаб графика
         "gnuplot -persist -e \""
@@ -197,7 +220,7 @@ HashTableErrorType HashTableDrawHistogram(HashTable* hash_table, const char* his
         "set boxwidth 0.8; "
         "set xrange [-1:%lu]; "
         "plot '%s' using 1:2 with boxes title ''\"",
-        hist_name, hist_title, (unsigned long)(hash_table->hash_table_size - 1), data_filename);
+        hist_name, hist_title, (unsigned long)xmax, data_filename);
 
     int ret = system(command);
     if (ret != 0)
