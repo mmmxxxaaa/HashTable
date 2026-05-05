@@ -1,19 +1,22 @@
 # Лабораторная работа по оптимизации поиска слов в хэш таблице.
 
 ### Аппаратное обеспечение
-* **Процессор:** Intel® Core™ i-12540
+* **Процессор:** Intel® Core™ i5-12540
 * **Режим питания:** От сети
 
 ### Программная среда
 * **Linux** Ubuntu 24.04.4 LTS
 * **Компилятор:** g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
 * **Инструмент замера:** `hyperfine` (усреднение по 7 прогонам, 2 прогревочных цикла, в каждом прогоне 200 тестов поиска по 1000 слов из англоязычной версии произведения Л. Н. Толстого "Война и мир").
-* **Мониторинг температуры ядер и троттлинга процессора:** turbostat
-* **Используемый профиллировщик:** perf version 6.17.13
+* **Мониторинг температуры ядер и троттлинга процессора:** `turbostat`
+* **Используемый профиллировщик:** `perf` version 6.17.13
 
-## 0. Версия программы до оптимизаций, компиляция с флагом -O2.
+### Флаги компиляции
+-O2 -DNDEBUG -ggdb3 -fno-omit-frame-pointer -march=native -masm=intel
 
-#### Benchmark 0: ./build/hash_table_program_before_opt  
+## 0. Версия программы до оптимизаций.
+
+#### Benchmark 0: 
 **89.808 ± 0.136** с
 
 <img src="monitoring_graphics/before_opt.png" width="600">
@@ -61,9 +64,8 @@ uint64_t Crc32Hash(const char* key)
 } 
 ```
 
-
-#### Benchmark 1: ./build/hash_table_program_after_1  
-**39.107 ± 0.088** с
+#### Benchmark 1: 
+**39.11 ± 0.09** с
 
 <img src="monitoring_graphics/after_1.png" width="600">
 
@@ -91,7 +93,7 @@ static __attribute__((noinline)) int fast_strcmp_32(const char *a, const char *b
 ```
 
 #### Benchmark 2:  
-**29.626 ± 0.161** с
+**29.63 ± 0.16** с
 
 <img src="monitoring_graphics/after_2.png" width="600">
 
@@ -136,7 +138,7 @@ static __attribute__((noinline)) int fast_strcmp_aligned32(const char *a, const 
 ```
 
 #### Benchmark 2.1:  
-**29.639 ± 0.067** с
+**29.64 ± 0.07** с
 
 <img src="monitoring_graphics/after_2_aligned.png" width="600">
 
@@ -216,7 +218,7 @@ ListFindElement:
 - Заметил, что проверку eax на значение 0xffffffff можно сделать не через xor + test, а через inc eax, так как если eax = 0xffffffff, то при увеличении его на 1 произойдет переполнение, и флаг нуля ZF станет равным единице. Во всех остальных случаях при других значениях eax такая операция не выставит ZF в единицу.
 
 #### Benchmark 3:  
-**29.385 ± 0.100** с
+**29.4 ± 0.1** с
 
 <img src="monitoring_graphics/after_3.png" width="600"> <br>
 
