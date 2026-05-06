@@ -13,7 +13,7 @@ static __attribute__((noinline)) int fast_strcmp_aligned32(const char *a, const 
         "vmovdqa ymm0, [%1]\n\t"          // выровненная загрузка a
         "vpcmpeqb ymm1, ymm0, [%2]\n\t"   // сравнение ymm0 с памятью b (тоже выровнено)
         "vpmovmskb eax, ymm1\n\t"         // бит = 1 если байты равны
-        "xor eax, 0xffffffff\n\t"         // инвертируем: 1 там, где различие
+        "xor eax, 0xffffffff\n\t"         // FIXME not nado
         : "=a"(res)
         : "r"(a), "r"(b)
         : "ymm0", "ymm1"
@@ -50,6 +50,7 @@ ListErrorType ListFindElement(List* list, DataType value, int* position)
         return LIST_ERROR_NO;
 
     ssize_t current = GetIndexOfHead(list);
+    #pragma GCC unroll 4
     while (current != kFictiveElementIndex)
     {
 #if defined(VERSION_AFTER_2_ALIGNED_OPTIMIZATION)
@@ -390,7 +391,8 @@ ListErrorType ListDeleteAt(List* list, ssize_t index)
 
     return LIST_ERROR_NO;
 }
-
+// inline // no inline difference check for 3 opt 
+// unroll asm maybe ListFindElement (force unroll)
 ListErrorType ListLinearize(List* list)
 {
     if (list == NULL)

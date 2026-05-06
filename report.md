@@ -115,8 +115,8 @@ uint64_t Crc32Hash(const char* key)
         crc = _mm_crc32_u8(crc, (unsigned char)*key);
         key++;
     }
-    return (uint64_t)(crc ^ 0xFFFFFFFF);
-} 
+    return (uint64_t)~crc;
+}
 ```
 
 #### Benchmark 1: 
