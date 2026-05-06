@@ -64,7 +64,7 @@ HashTableErrorType HashTablePutElement(HashTable* hash_table, const char* elemen
     List* list = FindListByKey(hash_table, element);
     if (list->capacity == 0)
     {
-        if (ListInsertAfter(list, 0, element) != LIST_ERROR_NO) //FIXME вроде есть же функция, которая в самое начало вставляет
+        if (ListInsertAfter(list, 0, element) != LIST_ERROR_NO) 
             return HASH_TABLE_LIST_ERROR;
 
         return HASH_TABLE_ERROR_NO;
@@ -105,12 +105,6 @@ HashTableErrorType HashTableVerify(HashTable* hash_table)
             return HASH_TABLE_LIST_VERIFY_FAILED;
         }
     }
-    return HASH_TABLE_ERROR_NO;
-}
-
-HashTableErrorType HashTableDump(HashTable* hash_table)
-{
-    //СИГМА СКИБИДИ
     return HASH_TABLE_ERROR_NO;
 }
 

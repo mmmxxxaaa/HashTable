@@ -17,6 +17,8 @@ static void WriteDispersionHeader(FILE* md_file)
 
 static void ProcessHistogramMode(HashFuncInfo* hash_funcs, size_t hash_funcs_count)
 {
+    assert(hash_funcs);
+
     system("mkdir -p assets");
 
     FILE* md_file = fopen("assets/dispersion.md", "w");
@@ -56,10 +58,10 @@ static void ProcessHistogramMode(HashFuncInfo* hash_funcs, size_t hash_funcs_cou
 #endif // ENABLE_HISTOGRAMS
 
 #ifndef ENABLE_HISTOGRAMS
-static void ProcessBenchmarkMode(HashFuncInfo* hash_funcs, size_t count)
+static void ProcessBenchmarkMode(HashFuncInfo* hash_funcs, size_t hash_funcs_count)
 {
     int number_of_hash_func = hash_funcs_count - 1; 
-    printf("Используется хэш-функция: %s\n", hash_funcs[idx].name);
+    printf("Используется хэш-функция: %s\n", hash_funcs[number_of_hash_func].name);
 
     HashTable hash_table = {};
     HashTableCtor(&hash_table, kHashTableCapacity, kInitListCapacityAtCell, hash_funcs[number_of_hash_func].pointer); 
@@ -101,7 +103,7 @@ static void ProcessBenchmarkMode(HashFuncInfo* hash_funcs, size_t count)
     unsigned long long total_ticks = end_ticks - start_ticks;
     size_t total_searches = words_to_find.words_count * repetitions;
     printf("[%s] Найдено слов: %zu из %zu\n",
-            hash_funcs[number_of_hash_func].name, found_count, total_searches); //FIXME
+            hash_funcs[number_of_hash_func].name, found_count, total_searches);
     printf("Циклов процессора: %llu\n", total_ticks);
     FreeWordArray(&words_to_find);
 
@@ -113,7 +115,7 @@ static void ProcessBenchmarkMode(HashFuncInfo* hash_funcs, size_t count)
 int main()
 {
     HashFuncInfo hash_funcs[] = {
-        #define INIT_HASH_FUNC_IN_MASSIVE(func) {#func, (HashFunc_t) func }
+        #define INIT_HASH_FUNC_IN_MASSIVE(func) {#func, func }
         INIT_HASH_FUNC_IN_MASSIVE(HashAlwaysOne),
         INIT_HASH_FUNC_IN_MASSIVE(HashIsASCIICodeOfFirstLetter),
         INIT_HASH_FUNC_IN_MASSIVE(HashIsLengthOfWord),
@@ -130,6 +132,6 @@ int main()
     ProcessHistogramMode(hash_funcs, hash_funcs_count);
 #else
     ProcessBenchmarkMode(hash_funcs, hash_funcs_count);
-#endif 
+#endif // ENABLE_HISTOGRAMS
     return 0;
 }

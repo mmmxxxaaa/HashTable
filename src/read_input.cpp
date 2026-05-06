@@ -102,16 +102,16 @@ WordArray ReadWordsFromFile(const char* filename) // 2
         }
         second_pass_buffer_pointer++;
     }
-    //FIXME
+    #if (defined(VERSION_AFTER_2_ALIGNED_OPTIMIZATION) || defined(VERSION_AFTER_3_OPTIMIZATION))
     char* new_buffer = (char*)aligned_alloc(32, words_count * 32);  // 2_aligned
     if (new_buffer)
         memset(new_buffer, 0, words_count * 32); // обнуляем, так как aligned_alloc не чистит память
-    // char* new_buffer = (char*)calloc(words_count, 32); // 2
-
+    #else 
+        char* new_buffer = (char*)calloc(words_count, 32); // 2
+    #endif // VERSION_AFTER_2_ALIGNED_OPTIMIZATION
     if (!new_buffer)
     {
         fprintf(stderr, "Memory allocation failed for fixed-size words\n");
-        // Освобождаем уже выделенные ресурсы
         free(result.words);
         free(buffer);
         result.words = NULL;
