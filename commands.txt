@@ -1,1 +1,4 @@
 sudo sysctl -w kernel.perf_event_paranoid=1
+
+perf record -g ./hash_table_program_after_2_aligned
+perf report -g "graph,0.5,caller" -Mintel --no-children --show-nr-samples
